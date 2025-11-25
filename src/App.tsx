@@ -1,17 +1,31 @@
+import { useRef, useState } from 'react'
 import './App.css'
+import { Chessboard, type PositionDataType, type ChessboardOptions } from 'react-chessboard'
+import { fenToObject, objectToFen } from './utils';
+
+const initialPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
 function App() {
-  const play = () => {
-    console.log("finding match");
-  }
-  
+  const [position, setPosition] = useState<PositionDataType>(fenToObject(initialPosition));
+
+  const options: ChessboardOptions = {
+    onPieceDrop: ({ piece: { pieceType, isSparePiece }, sourceSquare, targetSquare }) => {
+      if(isSparePiece) return false;
+
+      setPosition(({ [sourceSquare]: _, ...rest }) => ({ ...rest, [targetSquare!]: { pieceType } }));
+
+      return true;
+    },
+    position
+  };
+
   return (
-    <>
-      <div className='bg-zinc-900 h-full w-full flex flex-col justify-center items-center text-white'>
-        <img src="/wall_image.jpg" alt="chess pieces image" className='h-[50%]' />
-        <button className='bg-green-700 font-medium text-xl p-2 rounded-md m-2 hover:bg-green-600' onClick={play}>Play</button>
+    <div className='h-svh w-svw flex flex-col justify-center items-center'>
+      <h1>Onchain Chess</h1>
+      <div className='w-fit max-w-2/6 max-h-10/12'>
+        <Chessboard options={options} />
       </div>
-    </>
+    </div>
   )
 }
 
